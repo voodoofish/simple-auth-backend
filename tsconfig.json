@@ -6,14 +6,18 @@
   },
   "compilerOptions": {
     "target": "ES6",
-    "module": "CommonJS",
-    "moduleResolution": "node",
+    "module": "nodenext",
+    "moduleResolution": "nodenext",
     "strict": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
     "rootDir": "./src",
+    "allowSyntheticDefaultImports": true,
+    "outDir": ".dist",
+    "sourceMap": true,
   },
   "include": ["src/**/*.ts"],
-  "exclude": ["node_modules"]
+  "exclude": ["node_modules"],
+
 }
