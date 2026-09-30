@@ -2,6 +2,22 @@ import { Request, Response, NextFunction } from 'express';
 import knex from '../databases/knex';
 import { ErrorHandler } from './ErrorHandler';
 import { verifyJwt } from '../utils/jwt';
+import { request } from 'http';
+
+
+const getUserRoles = async (userId: string | number) => {
+    const userWithRoles = await knex('users')
+    .select('users.id', 'roles.name as role')
+    .where('users.id', userId)
+    .innerJoin('user_roles', 'users.id', 'user_roles.userId')
+    .innerJoin('roles', 'user_roles.roleId', 'roles.id');
+
+  if (!userWithRoles || userWithRoles.length === 0) {
+    throw new ErrorHandler(403, 'Forbidden!');
+  }
+
+  return userWithRoles.map((user) => user.role);
+}
 
 const checkRoles = async (req: Request) => {
   const token = req.cookies.auth;
@@ -14,17 +30,7 @@ const checkRoles = async (req: Request) => {
     throw new ErrorHandler(403, 'Invalid token');
   }
 
-  const userWithRoles = await knex('users')
-    .select('users.id', 'roles.name as role')
-    .where('users.id', id)
-    .innerJoin('user_roles', 'users.id', 'user_roles.userId')
-    .innerJoin('roles', 'user_roles.roleId', 'roles.id');
-
-  if (!userWithRoles || userWithRoles.length === 0) {
-    throw new ErrorHandler(403, 'Forbidden!');
-  }
-
-  return userWithRoles.map((user) => user.role);
+  return await getUserRoles(id);
 };
 
 const checkRole =
@@ -45,3 +51,6 @@ const checkRole =
 
 export const isAdmin = checkRole(['admin']);
 export const isAdminOrModerator = checkRole(['admin', 'moderator']);
+export const getAllRoles = async (id: string | number) => {
+  return await getUserRoles(id);
+};

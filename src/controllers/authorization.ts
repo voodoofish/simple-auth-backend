@@ -5,6 +5,7 @@ import knex from '../databases/knex';
 import { ErrorHandler } from '../middlewares/ErrorHandler';
 import { signJwt, verifyJwt } from '../utils/jwt';
 import { sendMail } from '../utils/mailer';
+import { getAllRoles } from '../middlewares/Permission'
 
 export const login = async (
   req: Request,
@@ -34,9 +35,10 @@ export const login = async (
     if (!user || !(await bcrypt.compare(password, user.password))) {
       throw new ErrorHandler(401, 'Invalid email or password');
     }
-
+    const roles = await getAllRoles(user.id);
     const tokenPayload = {
       id: user.id,
+      roles: roles,
     };
 
     const token = signJwt(tokenPayload);
@@ -100,7 +102,7 @@ export const register = async (
     await knex('users').insert(userData);
 
     const response = {
-      statusCode: 200,
+      statusCode: 201,
       message: 'OK',
     };
 
