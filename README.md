@@ -12,9 +12,10 @@ Before running the application, configure the `.env` file with the following:
 - Database access credentials
 - SMTP server access credentials
 - Domain address using the API server
-- Bcrypt cost value for password hashing
-- Token expiration time
+- Bcrypt cost value for password hashing --keep this low
+- Token expiration time 
 - Token encryption key
+- Access Token --use some random numbers/letters works
 
 ### Running the Project
 
@@ -22,6 +23,7 @@ Before running the application, configure the `.env` file with the following:
    ```bash
    npm install
    ```
+   --Don't forget to run the migration script 
 2. Run the project:
    ```bash
    npm run dev
