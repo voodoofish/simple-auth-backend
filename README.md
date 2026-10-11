@@ -192,3 +192,10 @@ Stores password reset tokens.
 - `GET /admin/users`: Returns a list of users.
 
 - `GET /admin/users/:id`: Returns the user with a specific ID.
+
+#### Docker related
+This is an example that builds and deploys to a local server(not localhost though)
+
+- `To build`: docker build -t login-app .
+- `Bag it and tag it`: docker tag login-app:latest localhost:5001/login-app:latest
+- `To deploy to a private registry`: docker push 10.46.163.112:5001/login-app:latest

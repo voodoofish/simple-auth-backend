@@ -12,6 +12,7 @@ const port = Number(process.env.PORT);
 
 app.use(
   cors({
+    origin: 'http://localhost:5173', //port for ui.
     credentials: true,
   })
 );
