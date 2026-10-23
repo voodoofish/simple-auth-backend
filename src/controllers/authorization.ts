@@ -38,6 +38,7 @@ export const login = async (
     const roles = await getAllRoles(user.id);
     const tokenPayload = {
       id: user.id,
+      name: user.firstName,
       roles: roles,
     };
 
@@ -99,7 +100,7 @@ export const register = async (
       lastName,
     };
 
-    await knex('users').insert(userData);
+    const newUserData = await knex('users').insert(userData);
 
     const response = {
       statusCode: 201,
