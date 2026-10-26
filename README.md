@@ -85,6 +85,8 @@ npm run prod
 
 ### Database Structure
 
+The latest migration adds a unique constraint to user emails and to each user-role pair. Before applying it to an existing database, resolve any duplicate emails or duplicate role assignments; the migration will stop with an error rather than discard data.
+
 #### `roles` Table
 
 Contains a list of roles.

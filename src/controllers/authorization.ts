@@ -8,6 +8,11 @@ import { sendMail } from '../utils/mailer';
 import { getAllRoles } from '../middlewares/Permission'
 import { authCookieOptions } from '../utils/authCookie';
 
+const isDuplicateEntryError = (error: unknown): boolean =>
+  error instanceof Error &&
+  'code' in error &&
+  error.code === 'ER_DUP_ENTRY';
+
 export const login = async (
   req: Request,
   res: Response,
@@ -109,6 +114,9 @@ export const register = async (
 
     return res.status(response.statusCode).send(response);
   } catch (error) {
+    if (isDuplicateEntryError(error)) {
+      return next(new ErrorHandler(400, 'Account already exists'));
+    }
     next(error);
   }
 };
