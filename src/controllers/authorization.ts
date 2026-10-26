@@ -6,6 +6,7 @@ import { ErrorHandler } from '../middlewares/ErrorHandler';
 import { signJwt, verifyJwt } from '../utils/jwt';
 import { sendMail } from '../utils/mailer';
 import { getAllRoles } from '../middlewares/Permission'
+import { authCookieOptions } from '../utils/authCookie';
 
 export const login = async (
   req: Request,
@@ -57,8 +58,7 @@ export const login = async (
     return res
       .status(response.statusCode)
       .cookie('auth', token, {
-        secure: process.env.NODE_ENV === 'development' ? false : true,
-        httpOnly: process.env.NODE_ENV === 'development' ? false : true,
+        ...authCookieOptions,
         maxAge: Number(process.env.EXP_TOKEN) * 1000,
       })
       .send(response);
@@ -120,7 +120,10 @@ export const logout = (req: Request, res: Response, next: NextFunction) => {
       message: 'OK',
     };
 
-    return res.status(response.statusCode).clearCookie('auth').send(response);
+    return res
+      .status(response.statusCode)
+      .clearCookie('auth', authCookieOptions)
+      .send(response);
   } catch (err) {
     next(err);
   }
@@ -136,44 +139,34 @@ export const requestResetPassword = async (
 
     const user = await knex('users').first('id').where({ email });
 
-    if (!user) {
-      throw new ErrorHandler(404, 'Email does not exist');
-    }
+    if (user) {
+      await knex('password_reset_tokens')
+        .where('userId', user.id)
+        .del();
 
-    await knex('password_reset_tokens')
-      .first('userId')
-      .where('userId', user.id)
-      .del();
+      const resetToken = crypto.randomBytes(16).toString('hex');
+      const expirationSeconds = parseInt(
+        process.env.EXP_TOKEN_RESET || '300',
+        10
+      );
+      const expiresData = new Date(Date.now() + expirationSeconds * 1000);
 
-    const resetToken = crypto.randomBytes(16).toString('hex');
+      await knex('password_reset_tokens').insert({
+        userId: user.id,
+        token: resetToken,
+        expires_data: expiresData,
+      });
 
-    const expirationSeconds = parseInt(
-      process.env.EXP_TOKEN_RESET || '300',
-      10
-    );
-    const expiresData = new Date(Date.now() + expirationSeconds * 1000);
-
-    const tokenData = {
-      userId: user.id,
-      token: resetToken,
-      expires_data: expiresData,
-    };
-
-    await knex('password_reset_tokens').insert(tokenData);
-
-    const emailSent = await sendMail(
-      email,
-      'Password Reset',
-      `Password reset link: ${process.env.DOMAIN_APP}/reset?token=${resetToken}`
-    );
-
-    if (!emailSent) {
-      throw new ErrorHandler(500, 'Failed to send password reset email');
+      void sendMail(
+        email,
+        'Password Reset',
+        `Password reset link: ${process.env.DOMAIN_APP}/reset?token=${resetToken}`
+      );
     }
 
     const response = {
       statusCode: 200,
-      message: 'OK',
+      message: 'If the email is registered, a password reset link will be sent.',
     };
 
     return res.status(response.statusCode).send(response);

@@ -15,7 +15,7 @@ Before running the application, configure the `.env` file with the following:
 - Bcrypt cost value for password hashing --keep this low
 - Token expiration time 
 - Token encryption key
-- Access Token --use some random numbers/letters works
+- Access Token --use some random numbers/letters works ex: "openssl rand -hex 12"
 
 ### Running the Project
 
@@ -23,7 +23,10 @@ Before running the application, configure the `.env` file with the following:
    ```bash
    npm install
    ```
-   --Don't forget to run the migration script 
+   run the migration script 
+   ```bash
+   npm run migration
+   ```
 2. Run the project:
    ```bash
    npm run dev
@@ -50,6 +53,10 @@ If a request does not exist, the API returns a 404 error. Errors are handled by 
 ### Authentication
 
 Authentication is performed using JSON Web Tokens (JWT). The token validity period can be set in the `.env` file in seconds. The token is refreshed 15 minutes before it expires if the user sends a request to the server.
+
+The auth cookie is `HttpOnly`, uses `SameSite=Lax`, and is secure outside development. Unsafe requests that include an `Origin` header are accepted only from `CLIENT_ORIGIN` (defaults to `http://localhost:5173`); set this variable to the exact frontend origin in deployment. Clients should send credentials with requests. If the frontend and API require cross-site cookies, `SameSite=None; Secure` and an explicit CSRF token strategy are required; do not relax the origin check.
+
+Login is limited to 10 requests per IP per 15 minutes, password-reset requests to 5 per IP per hour, and reset-token submissions to 10 per IP per 15 minutes. These limits use the process-local memory store; deployments with multiple workers or instances should configure a shared rate-limit store. If deployed behind a reverse proxy, configure Express to trust only that proxy so client IP-based limits are accurate.
 
 ### Roles
 

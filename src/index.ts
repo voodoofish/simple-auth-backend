@@ -1,22 +1,24 @@
+import 'dotenv/config';
 import express from 'express';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import router from './routes';
 import NotFound from './middlewares/NotFound';
 import { handleError } from './middlewares/ErrorHandler';
-
-require('dotenv').config();
+import { verifyRequestOrigin } from './middlewares/RequestOrigin';
 
 const app = express();
 const port = Number(process.env.PORT);
+const clientOrigin = process.env.CLIENT_ORIGIN || 'http://localhost:5173';
 
 app.use(
   cors({
-    origin: 'http://localhost:5173', //port for ui.
+    origin: clientOrigin,
     credentials: true,
   })
 );
 
+app.use(verifyRequestOrigin);
 app.use(cookieParser());
 app.use(express.json({ limit: '200mb' }));
 app.use(express.urlencoded({ limit: '200mb', extended: true }));

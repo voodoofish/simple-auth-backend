@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import { ErrorHandler } from './ErrorHandler';
 import { signJwt, verifyJwt } from '../utils/jwt';
+import { authCookieOptions } from '../utils/authCookie';
 
 export const verifyToken = (
   req: Request,
@@ -25,8 +26,7 @@ export const verifyToken = (
       const newToken = signJwt({ ...restOfPayload });
 
       res.cookie('auth', newToken, {
-        secure: process.env.NODE_ENV === 'development' ? false : true,
-        httpOnly: process.env.NODE_ENV === 'development' ? false : true,
+        ...authCookieOptions,
         maxAge: Number(process.env.EXP_TOKEN) * 1000,
       });
     }
