@@ -5,15 +5,13 @@ import cookieParser from 'cookie-parser';
 import router from './routes';
 import NotFound from './middlewares/NotFound';
 import { handleError } from './middlewares/ErrorHandler';
-import { verifyRequestOrigin } from './middlewares/RequestOrigin';
+import { clientOrigins, verifyRequestOrigin } from './middlewares/RequestOrigin';
 
 const app = express();
 const port = Number(process.env.PORT);
-const clientOrigin = process.env.CLIENT_ORIGIN || 'http://localhost:5173';
-
 app.use(
   cors({
-    origin: clientOrigin,
+    origin: clientOrigins,
     credentials: true,
   })
 );
