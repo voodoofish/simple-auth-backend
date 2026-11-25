@@ -1,0 +1,22 @@
+services:
+  redis_session_data:
+    image: redis/redis-stack-server:latest
+    container_name: user-session-redis
+    ports:
+      - "6380:6379" #plus 1 for testing
+      - "8002:8001" # Redis Insight GUI for debugging vectors -- Plus 1 for testing
+    volumes:
+      - redis_user_session_data:/data
+
+  login-service:
+    build: .
+    container_name: login-service
+    ports:
+      - "2200:2200"
+    depends_on:
+      - redis_session_data
+    environment:
+      - ConnectionStrings__Redis=redis://redis:6380
+    # need to add mariadb to the above
+volumes:
+  redis_user_session_data:

@@ -8,11 +8,11 @@
             "ssh": "Disabled",
             "previewLimit": 50,
             "server": "localhost",
-            "port": 3306,
+            "port": 3406,
             "driver": "MariaDB",
             "name": "local",
             "username": "root",
-            "database": "SimpleAuth",
+            "database": "jobsearchDB",
             "askForPassword": true
         }
     ]
